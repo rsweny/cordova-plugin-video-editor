@@ -16,10 +16,12 @@ public class CustomAndroidFormatStrategy implements MediaFormatStrategy {
     private static final String TAG = "CustomFormatStrategy";
     private static final int DEFAULT_BITRATE = 8000000;
     private static final int DEFAULT_FRAMERATE = 30;
-    private static final int DEFAULT_WIDTH = 0;
-    private static final int DEFAULT_HEIGHT = 0;
+    private static final int DEFAULT_WIDTH = 852;
+    private static final int DEFAULT_HEIGHT = 480;
     private final int mBitRate;
     private final int mFrameRate;
+    private final int mAudioBitrate = 128 * 1000;
+    private final int mAudioChannels = 2;
     private final int width;
     private final int height;
 
@@ -86,7 +88,14 @@ public class CustomAndroidFormatStrategy implements MediaFormatStrategy {
     }
 
     public MediaFormat createAudioOutputFormat(MediaFormat inputFormat) {
-        return null;
+        // Use original sample rate, as resampling is not supported yet.
+        final MediaFormat format = MediaFormat.createAudioFormat(MediaFormatExtraConstants.MIMETYPE_AUDIO_AAC,
+            inputFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE), mAudioChannels);
+
+        format.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
+        format.setInteger(MediaFormat.KEY_BIT_RATE, mAudioBitrate);
+
+        return format;
     }
 
 }
