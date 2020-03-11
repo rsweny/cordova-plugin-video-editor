@@ -3,6 +3,7 @@ package org.apache.cordova.videoeditor;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.util.Log;
+import net.ypresto.androidtranscoder.format.MediaFormatExtraConstants;
 import net.ypresto.androidtranscoder.format.MediaFormatStrategy;
 import net.ypresto.androidtranscoder.format.OutputFormatUnavailableException;
 
