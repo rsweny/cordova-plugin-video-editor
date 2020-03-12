@@ -5,7 +5,7 @@ repositories{
 }
 
 dependencies {
-    implementation 'com.github.ypresto:android-transcoder:master'
+    implementation 'com.github.ypresto:android-transcoder:-SNAPSHOT'
 }
 
 android {
