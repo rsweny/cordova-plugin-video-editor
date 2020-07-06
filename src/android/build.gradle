@@ -1,11 +1,10 @@
 
 repositories{
     jcenter()
-    maven { url "https://jitpack.io" }
 }
 
 dependencies {
-    implementation 'com.github.ypresto:android-transcoder:-SNAPSHOT'
+    api 'com.otaliastudios:transcoder:0.9.1'
 }
 
 android {
