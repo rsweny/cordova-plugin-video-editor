@@ -145,12 +145,9 @@ public class VideoEditor extends CordovaPlugin {
         File mediaStorageDir;
 
         if (saveToLibrary) {
-            mediaStorageDir = new File(
-                    Environment.getExternalStorageDirectory() + "/Movies",
-                    appName
-            );
+            mediaStorageDir = appContext.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
         } else {
-            mediaStorageDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/" + cordova.getActivity().getPackageName() + "/files/files/videos");
+            mediaStorageDir = appContext.getFilesDir();
         }
 
         if (!mediaStorageDir.exists()) {
@@ -314,7 +311,7 @@ public class VideoEditor extends CordovaPlugin {
         }
         final String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "Unknown");
 
-        File externalFilesDir =  new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/" + cordova.getActivity().getPackageName() + "/files/files/videos");
+        File externalFilesDir = appContext.getFilesDir();
 
         if (!externalFilesDir.exists()) {
             if (!externalFilesDir.mkdirs()) {
@@ -523,7 +520,7 @@ public class VideoEditor extends CordovaPlugin {
                 final String type = split[0];
 
                 if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    return context.getExternalFilesDir(null).getAbsolutePath() + "/" + split[1];
                 }
 
                 // TODO handle non-primary volumes
