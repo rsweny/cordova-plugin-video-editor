@@ -1,5 +1,7 @@
 [![npm version](https://badge.fury.io/js/cordova-plugin-video-editor.svg)](https://badge.fury.io/js/cordova-plugin-video-editor)
 
+#### This fork fixes issues in Android 29 with the file locations and upgrades the transcoder library to support modern codecs.
+
 This is a cordova plugin to assist in several video editing tasks such as:
 
 * Transcoding
