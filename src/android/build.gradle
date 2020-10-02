@@ -5,7 +5,7 @@ repositories{
 }
 
 dependencies {
-    compile 'com.github.ffMathy:android-transcoder:v4'
+    api 'com.otaliastudios:transcoder:0.9.1'
 }
 
 android {

@@ -30,7 +30,15 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import net.ypresto.androidtranscoder.MediaTranscoder;
+import com.otaliastudios.transcoder.Transcoder;
+import com.otaliastudios.transcoder.TranscoderListener;
+import com.otaliastudios.transcoder.source.DataSource;
+import com.otaliastudios.transcoder.source.ClipDataSource;
+import com.otaliastudios.transcoder.source.FileDescriptorDataSource;
+import com.otaliastudios.transcoder.strategy.DefaultAudioStrategy;
+import com.otaliastudios.transcoder.strategy.DefaultVideoStrategy;
+import com.otaliastudios.transcoder.strategy.DefaultVideoStrategies;
+import com.otaliastudios.transcoder.validator.WriteVideoValidator;
 
 /**
  * VideoEditor plugin for Android
@@ -168,11 +176,28 @@ public class VideoEditor extends CordovaPlugin {
 
                 try {
 
-                    FileInputStream fin = new FileInputStream(inFile);
+                    FileInputStream fileInputStream = new FileInputStream(inFile);
 
-                    MediaTranscoder.Listener listener = new MediaTranscoder.Listener() {
-                        @Override
-                        public void onTranscodeProgress(double progress) {
+                    // DataSource clip = new ClipDataSource(
+                    //   new FileDescriptorDataSource(fileInputStream.getFD()),
+                    //   videoDuration // 30 * 1000 * 1000
+                    // );
+
+                    DefaultAudioStrategy audioStrategy = DefaultAudioStrategy.builder()
+                      .channels(DefaultAudioStrategy.CHANNELS_AS_INPUT)
+                      .sampleRate(DefaultAudioStrategy.SAMPLE_RATE_AS_INPUT)
+                      .bitRate(DefaultAudioStrategy.BITRATE_UNKNOWN)
+                      .build();
+
+                    DefaultVideoStrategy videoStrategy = DefaultVideoStrategy.atMost(1280).build();
+
+                    Transcoder.into(outputFilePath)
+                      .addDataSource(new FileDescriptorDataSource(fileInputStream.getFD()))
+                      .setAudioTrackStrategy(audioStrategy)
+                      .setVideoTrackStrategy(videoStrategy)
+                      .setValidator(new WriteVideoValidator())
+                      .setListener(new TranscoderListener() {
+                          public void onTranscodeProgress(double progress) {
                             Log.d(TAG, "transcode running " + progress);
 
                             JSONObject jsonObj = new JSONObject();
@@ -185,11 +210,9 @@ public class VideoEditor extends CordovaPlugin {
                             PluginResult progressResult = new PluginResult(PluginResult.Status.OK, jsonObj);
                             progressResult.setKeepCallback(true);
                             callback.sendPluginResult(progressResult);
-                        }
+                          }
 
-                        @Override
-                        public void onTranscodeCompleted() {
-
+                          public void onTranscodeCompleted(int successCode) {
                             File outFile = new File(outputFilePath);
                             if (!outFile.exists()) {
                                 Log.d(TAG, "outputFile doesn't exist!");
@@ -210,39 +233,23 @@ public class VideoEditor extends CordovaPlugin {
                             }
 
                             callback.success(outputFilePath);
-                        }
+                          }
 
-                        @Override
-                        public void onTranscodeCanceled() {
+                          public void onTranscodeCanceled() {
                             callback.error("transcode canceled");
                             Log.d(TAG, "transcode canceled");
-                        }
+                          }
 
-                        @Override
-                        public void onTranscodeFailed(Exception exception) {
+                          public void onTranscodeFailed(Throwable exception) {
                             callback.error(exception.toString());
                             Log.d(TAG, "transcode exception", exception);
-                        }
-                    };
-
-                    MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                    mmr.setDataSource(videoSrcPath);
-
-                    String orientation;
-                    String mmrOrientation = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-                    Log.d(TAG, "mmrOrientation: " + mmrOrientation); // 0, 90, 180, or 270
-
-                    float videoWidth = Float.parseFloat(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-                    float videoHeight = Float.parseFloat(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-
-                    CustomAndroidFormatStrategy formatStrategy = new CustomAndroidFormatStrategy(videoBitrate, fps, width, height);
-                    MediaTranscoder.getInstance().transcodeVideo(fin.getFD(), outputFilePath, formatStrategy, listener);
+                          }
+                      }).transcode();
 
                 } catch (Throwable e) {
                     Log.d(TAG, "transcode exception ", e);
                     callback.error(e.toString());
                 }
-
             }
         });
     }
@@ -627,3 +634,4 @@ public class VideoEditor extends CordovaPlugin {
     }
 
 }
+
