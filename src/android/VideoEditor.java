@@ -59,21 +59,21 @@ public class VideoEditor extends CordovaPlugin {
         if (action.equals("transcodeVideo")) {
             try {
                 this.transcodeVideo(args);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 callback.error(e.toString());
             }
             return true;
         } else if (action.equals("createThumbnail")) {
             try {
                 this.createThumbnail(args);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 callback.error(e.toString());
             }
             return true;
         } else if (action.equals("getVideoInfo")) {
             try {
                 this.getVideoInfo(args);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 callback.error(e.toString());
             }
             return true;
@@ -109,7 +109,7 @@ public class VideoEditor extends CordovaPlugin {
      * @return void
      */
     private void transcodeVideo(JSONArray args) throws JSONException, IOException {
-        Log.d(TAG, "transcodeVideo firing");
+        Log.i(TAG, "-------------------------------transcodeVideo firing");
 
         JSONObject options = args.optJSONObject(0);
         Log.d(TAG, "options: " + options.toString());
@@ -178,18 +178,13 @@ public class VideoEditor extends CordovaPlugin {
 
                     FileInputStream fileInputStream = new FileInputStream(inFile);
 
-                    // DataSource clip = new ClipDataSource(
-                    //   new FileDescriptorDataSource(fileInputStream.getFD()),
-                    //   videoDuration // 30 * 1000 * 1000
-                    // );
-
                     DefaultAudioStrategy audioStrategy = DefaultAudioStrategy.builder()
                       .channels(DefaultAudioStrategy.CHANNELS_AS_INPUT)
                       .sampleRate(DefaultAudioStrategy.SAMPLE_RATE_AS_INPUT)
                       .bitRate(DefaultAudioStrategy.BITRATE_UNKNOWN)
                       .build();
 
-                    DefaultVideoStrategy videoStrategy = DefaultVideoStrategy.atMost(1280).build();
+                    DefaultVideoStrategy videoStrategy = DefaultVideoStrategy.atMost(width).build();
 
                     Transcoder.into(outputFilePath)
                       .addDataSource(new FileDescriptorDataSource(fileInputStream.getFD()))
@@ -632,6 +627,4 @@ public class VideoEditor extends CordovaPlugin {
     public static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
-
 }
-
