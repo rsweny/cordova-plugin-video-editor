@@ -109,10 +109,10 @@ public class VideoEditor extends CordovaPlugin {
      * @return void
      */
     private void transcodeVideo(JSONArray args) throws JSONException, IOException {
-        Log.i(TAG, "-------------------------------transcodeVideo firing");
+        Log.w(TAG, "-------------------------------transcodeVideo firing");
 
         JSONObject options = args.optJSONObject(0);
-        Log.d(TAG, "options: " + options.toString());
+        Log.w(TAG, "options: " + options.toString());
 
         final File inFile = this.resolveLocalFileSystemURI(options.getString("fileUri"));
         if (!inFile.exists()) {
@@ -133,7 +133,7 @@ public class VideoEditor extends CordovaPlugin {
         final int fps = options.optInt("fps", 24);
         final int videoBitrate = options.optInt("videoBitrate", 1000000); // default to 1 megabit
 
-        Log.d(TAG, "videoSrcPath: " + videoSrcPath);
+        Log.w(TAG, "videoSrcPath: " + videoSrcPath);
 
         final String outputExtension = ".mp4";
 
@@ -152,7 +152,8 @@ public class VideoEditor extends CordovaPlugin {
         File mediaStorageDir;
 
         if (saveToLibrary) {
-            mediaStorageDir = appContext.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+            //mediaStorageDir = appContext.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+            mediaStorageDir = appContext.getExternalFilesDir(null);
         } else {
             mediaStorageDir = appContext.getFilesDir();
         }
@@ -169,7 +170,7 @@ public class VideoEditor extends CordovaPlugin {
                 outputFileName + outputExtension
         ).getAbsolutePath();
 
-        Log.d(TAG, "outputFilePath: " + outputFilePath);
+        Log.w(TAG, "outputFilePath: " + outputFilePath);
 
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
